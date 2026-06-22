@@ -1,0 +1,78 @@
+// KODE GOOGLE APPS SCRIPT UNTUK SIMPATIK MADRASAH
+// =================================================
+
+// 1. Buka Google Sheets baru di akun Google Anda
+// 2. Klik menu "Extensions" (Ekstensi) > "Apps Script"
+// 3. Hapus semua kode default dan PASTE kode di bawah ini:
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Siswa");
+    
+    // Buat sheet jika belum ada
+    if (!sheet) {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Data Siswa");
+      sheet.appendRow([
+        "ID", "NISN", "NIS", "Nama Lengkap", "Jenis Kelamin", 
+        "Tempat Lahir", "Tanggal Lahir", "Agama", "Alamat", 
+        "Nama Ayah", "Nama Ibu", "Tahun Masuk", "Status", "Kelas"
+      ]);
+      // Styling header
+      sheet.getRange("A1:N1").setFontWeight("bold").setBackground("#e2f0d9");
+    }
+    
+    var existingData = sheet.getDataRange().getValues();
+    var idRowMap = {};
+    for (var i = 1; i < existingData.length; i++) {
+        idRowMap[existingData[i][0]] = i + 1;
+    }
+
+    data.forEach(function(student) {
+      var rowData = [
+        student.id || "",
+        student.nisn || "",
+        student.nis || "",
+        student.nama || "",
+        student.jenisKelamin || "",
+        student.tempatLahir || "",
+        student.tanggalLahir || "",
+        student.agama || "",
+        student.alamat || "",
+        student.namaAyah || "",
+        student.namaIbu || "",
+        student.tahunMasuk || "",
+        student.status || "",
+        student.kelas || ""
+      ];
+      
+      // Update jika ID sudah ada, jika tidak tambahkan baris baru
+      if (student.id && idRowMap[student.id]) {
+        var rowIndex = idRowMap[student.id];
+        sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+    });
+    
+    return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": String(err)})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput("Web App SIMPATIK Madrasah berjalan dan siap sinkronisasi.");
+}
+
+// =================================================
+// CARA DEPLOY:
+// 1. Klik tombol biru "Deploy" di pojok kanan atas Apps Script
+// 2. Pilih "New deployment"
+// 3. Select type: Pilih "Web app" (ikon gear)
+// 4. Description: isi misalnya "Sync SIMPATIK v1"
+// 5. Execute as: "Me" (Email Anda)
+// 6. Who has access: "Anyone" (Sangat penting agar aplikasi web bisa mengakses)
+// 7. Klik "Deploy"
+// 8. Copy "Web app URL" yang muncul
+// 9. Paste URL tersebut di menu "Pengaturan" pada Aplikasi SIMPATIK -> Tab "Integrasi & Data" -> Kolom "URL Apps Script".

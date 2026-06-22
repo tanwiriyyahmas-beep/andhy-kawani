@@ -1,0 +1,6 @@
+{
+  "name": "SI-Madrasah Tanwiriyyah",
+  "description": "Sistem Informasi Manajemen Administrasi Madrasah Tanwiriyyah Terintegrasi",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
